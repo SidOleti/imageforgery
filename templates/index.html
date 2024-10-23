@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Forgery Detection</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="/static/js/script.js" defer></script> <!-- Ensure proper script loading -->
+</head>
+<body>
+    <div class="container">
+        <h1>Image Forgery Detection</h1>
+        <form id="upload-form">
+            <div class="image-container">
+                <div class="drop-area" id="drop-area1" onclick="document.getElementById('image1').click()">
+                    <div class="plus-icon" id="plus-icon1">+</div>
+                    <p id="text1">Drag & Drop or Click to Upload Image 1</p>
+                    <input type="file" id="image1" name="image1" accept="image/*" required>
+                    <img id="preview1" alt="Image 1 Preview" />
+                </div>
+                <div class="drop-area" id="drop-area2" onclick="document.getElementById('image2').click()">
+                    <div class="plus-icon" id="plus-icon2">+</div>
+                    <p id="text2">Drag & Drop or Click to Upload Image 2</p>
+                    <input type="file" id="image2" name="image2" accept="image/*" required>
+                    <img id="preview2" alt="Image 2 Preview" />
+                </div>
+            </div>
+            <button type="submit" id="submit-button">Compare Images</button>
+        </form>
+        <div id="result" class="message"></div>
+        <div id="metrics"></div>
+    </div>
+</body>
+</html>
