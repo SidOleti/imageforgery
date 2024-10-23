@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 from skimage.metrics import structural_similarity as ssim
 from PIL import Image
-from logging import Logger as logger
+import logging
 
 app = Flask(__name__)
 CORS(app)
@@ -16,6 +16,10 @@ CORS(app)
 UPLOAD_FOLDER = 'uploads/'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Initialize logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -30,6 +34,13 @@ def compute_md5(file_path):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
+def resize_image_for_orb(img1, img2):
+    # Resize images to the same size
+    height, width = min(img1.shape[0], img2.shape[0]), min(img1.shape[1], img2.shape[1])
+    img1 = cv2.resize(img1, (width, height))
+    img2 = cv2.resize(img2, (width, height))
+    return img1, img2
+
 def orb_feature_matching(image_path1, image_path2):
     # Load images in grayscale
     img1 = cv2.imread(image_path1, cv2.IMREAD_GRAYSCALE)
@@ -38,6 +49,9 @@ def orb_feature_matching(image_path1, image_path2):
     if img1 is None or img2 is None:
         logger.error("One of the images could not be loaded.")
         return 0, "N/A"
+
+    # Resize the images to the same size
+    img1, img2 = resize_image_for_orb(img1, img2)
 
     # Initialize ORB detector
     orb = cv2.ORB_create(nfeatures=500)
@@ -51,6 +65,9 @@ def orb_feature_matching(image_path1, image_path2):
         logger.error("No descriptors found in one or both images.")
         return 0, "N/A"
 
+    # Log the number of keypoints detected
+    logger.info(f"Keypoints in image 1: {len(kp1)}, Keypoints in image 2: {len(kp2)}")
+
     # Use BFMatcher to match descriptors
     bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
     matches = bf.match(des1, des2)
@@ -61,12 +78,9 @@ def orb_feature_matching(image_path1, image_path2):
 
     # Sort matches by distance (lower distance is better)
     matches = sorted(matches, key=lambda x: x.distance)
-    logger.info(f"Keypoints in image 1: {len(kp1) if kp1 else 0}, Keypoints in image 2: {len(kp2) if kp2 else 0}")
 
     logger.info(f"ORB matches found: {len(matches)}")
     return len(matches), matches  # Return the number of matches
-
-
 
 def compute_ssim(image_path1, image_path2):
     # Open images using PIL and convert to grayscale
@@ -85,10 +99,12 @@ def compute_ssim(image_path1, image_path2):
     ssim_index, _ = ssim(image1, image2, full=True)
     return ssim_index
 
-
 @app.route('/')
 def index():
     return render_template('index.html')
+@app.route('/about')
+def about():
+    return render_template('about.html')
 
 @app.route('/compare', methods=['POST'])
 def compare_images():
@@ -109,6 +125,7 @@ def compare_images():
         image2.save(filepath2)
 
         ssim_index = compute_ssim(filepath1, filepath2)
+        orb_matches, _ = orb_feature_matching(filepath1, filepath2)  # Include ORB matching here
         hash1 = compute_md5(filepath1)
         hash2 = compute_md5(filepath2)
 
@@ -121,6 +138,7 @@ def compare_images():
             'hash1': hash1,
             'hash2': hash2,
             'ssim_index': ssim_index,
+            'orb_matches': orb_matches,  # Return the number of ORB matches
             'result': result
         }), 200
     else:

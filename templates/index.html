@@ -6,9 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Forgery Detection</title>
     <link rel="stylesheet" href="/static/css/styles.css">
-    <script src="/static/js/script.js" defer></script> <!-- Ensure proper script loading -->
 </head>
 <body>
+    <!-- Top Navigation Bar -->
+    <nav class="top-bar">
+        <div class="container">
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+            </ul>
+        </div>
+    </nav>
+
     <div class="container">
         <h1>Image Forgery Detection</h1>
         <form id="upload-form">
@@ -31,5 +40,6 @@
         <div id="result" class="message"></div>
         <div id="metrics"></div>
     </div>
+    <script src="/static/js/script.js"></script>
 </body>
 </html>
