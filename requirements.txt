@@ -1,0 +1,8 @@
+Flask==latest_version
+flask-cors==latest_version
+opencv-python==latest_version
+numpy==latest_version
+scikit-image==latest_version
+Pillow==latest_version
+werkzeug==latest_version
+gunicorn==latest_version
